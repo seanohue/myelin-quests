@@ -1,7 +1,10 @@
 'use strict';
 
+
+
 module.exports = srcPath => {
   const QuestGoal = require(srcPath + 'QuestGoal');
+  const Logger = require(srcPath + 'Logger');
   /**
    * A quest goal requiring the player visits specific room(s)
    */
@@ -21,21 +24,31 @@ module.exports = srcPath => {
 
       this.player = player;
 
-      this.checkForRoom = this._checkForRoom.bind(this, player);
+      // So that the listener can be removed on completion...
+      this.checkForRoom = (room) => this._checkForRoom(player, room);
 
-     (this.player || player).on('enterRoom', this.checkForRoom);
+      this.player.on('enterRoom', this.checkForRoom);
+    }
+
+    get totalToVisit() {
+      return this.config.rooms.length;
+    }
+
+    get totalVisited() {
+      return this.state.visited.length;
     }
 
     getProgress() {
-      const amount = Math.min(this.config.rooms.length, this.state.visited.length);
-      const percent = (amount / this.config.rooms.length) * 100;
-      const display = `${this.config.title}: [${amount}/${this.config.rooms.length}]`;
+
+      const amount = Math.min(this.totalToVisit, this.totalVisited);
+      const percent = (amount / this.totalToVisit) * 100;
+      const display = `${this.config.title}: [${amount}/${this.totalToVisit}]`;
       return { percent, display };
     }
 
     complete(player) {
       player = player || this.player;
-      if (this.state.visited.length !== this.config.rooms.length) {
+      if (this.totalVisited !== this.totalToVisit) {
         return;
       }
 
@@ -50,7 +63,7 @@ module.exports = srcPath => {
       }
 
       if (!player.questTracker.canStart(this.quest) || player.questTracker.isComplete(this.quest)) return;
-      console.log('Able to quest!');
+
       const roomRef = room.entityReference;
 
       if (this.config.inOrder === true) {
