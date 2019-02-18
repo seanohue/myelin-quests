@@ -61,8 +61,8 @@ module.exports = srcPath => {
       if (!room) {
         return Logger.warn('No room found for locationGoal...');
       }
-
-      if (!player.questTracker.canStart(this.quest) || player.questTracker.isComplete(this.quest)) return;
+      
+      if (player.questTracker.isComplete(this.quest)) return;
 
       const roomRef = room.entityReference;
 
