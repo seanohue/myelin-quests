@@ -1,5 +1,5 @@
 'use strict';
-const Logger = require('ranvier');
+const {Logger} = require('ranvier');
 
 module.exports = {
   listeners: {
